@@ -1,82 +1,81 @@
 
 
-==== src\components\AddStudent.jsx ====
+==== src\components\AddCourse.jsx ====
 
 import React, { useState } from 'react';
 import dynamoDB from '../awsConfig';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 
-const AddStudent = () => {
-  const [studentID, setStudentID] = useState('');
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
+const AddCourse = () => {
+  const [courseID, setCourseID] = useState('');
+  const [courseName, setCourseName] = useState('');
 
-  const addStudent = async () => {
+  const addCourse = async () => {
     const params = {
-      TableName: 'StudentsTable',
+      TableName: 'CoursesTable',
       Item: {
-        studentID,
-        name,
-        age
-      }
+        courseID,
+        courseName,
+      },
     };
 
     try {
       const command = new PutCommand(params);
       await dynamoDB.send(command);
-      alert('Student added successfully!');
+      alert('Course added successfully!');
+      setCourseID('');
+      setCourseName('');
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error('Error adding course:', error);
     }
   };
 
   return (
-    <div>
-      <h2>Add Student</h2>
+    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 className="text-2xl font-bold mb-4">Add Course</h2>
       <input
         type="text"
-        placeholder="Student ID"
-        value={studentID}
-        onChange={(e) => setStudentID(e.target.value)}
+        placeholder="Course ID"
+        value={courseID}
+        onChange={(e) => setCourseID(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
       />
       <input
         type="text"
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        placeholder="Course Name"
+        value={courseName}
+        onChange={(e) => setCourseName(e.target.value)}
+        className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg"
       />
-      <input
-        type="text"
-        placeholder="Age"
-        value={age}
-        onChange={(e) => setAge(e.target.value)}
-      />
-      <button onClick={addStudent}>Add Student</button>
+      <button
+        onClick={addCourse}
+        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+      >
+        Add Course
+      </button>
     </div>
   );
 };
 
-export default AddStudent;
+export default AddCourse;
 
 
-==== src\components\StudentList.jsx ====
+==== src\components\AddParent.jsx ====
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamoDB from '../awsConfig';
-import { ScanCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
-const StudentList = () => {
+const AddParent = () => {
+  const [parentID, setParentID] = useState('');
+  const [parentName, setParentName] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [studentID, setStudentID] = useState('');
   const [students, setStudents] = useState([]);
-  const [editingStudentID, setEditingStudentID] = useState(null);
-  const [updatedName, setUpdatedName] = useState('');
-  const [updatedAge, setUpdatedAge] = useState('');
 
   useEffect(() => {
     const fetchStudents = async () => {
-      const params = {
-        TableName: 'StudentsTable',
-      };
-
+      const params = { TableName: 'StudentsTable' };
       try {
         const command = new ScanCommand(params);
         const data = await dynamoDB.send(command);
@@ -89,14 +88,288 @@ const StudentList = () => {
     fetchStudents();
   }, []);
 
-  const deleteStudent = async (studentID) => {
+  const addParent = async () => {
     const params = {
-      TableName: 'StudentsTable',
-      Key: {
-        studentID: studentID,
+      TableName: 'ParentsTable',
+      Item: {
+        parentID,
+        parentName,
+        contactNumber,
+        studentID,
       },
     };
 
+    try {
+      const command = new PutCommand(params);
+      await dynamoDB.send(command);
+      alert('Parent added successfully!');
+      setParentID('');
+      setParentName('');
+      setContactNumber('');
+      setStudentID('');
+    } catch (error) {
+      console.error('Error adding parent:', error);
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 className="text-2xl font-bold mb-4">Add Parent</h2>
+      <input
+        type="text"
+        placeholder="Parent ID"
+        value={parentID}
+        onChange={(e) => setParentID(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        type="text"
+        placeholder="Parent Name"
+        value={parentName}
+        onChange={(e) => setParentName(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        type="text"
+        placeholder="Contact Number"
+        value={contactNumber}
+        onChange={(e) => setContactNumber(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <select
+        value={studentID}
+        onChange={(e) => setStudentID(e.target.value)}
+        className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg"
+      >
+        <option value="">Select Student</option>
+        {students.map((student, index) => (
+          <option key={index} value={student.studentID}>
+            {student.name}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={addParent}
+        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+      >
+        Add Parent
+      </button>
+    </div>
+  );
+};
+
+export default AddParent;
+
+
+==== src\components\AddStudent.jsx ====
+
+import React, { useState, useEffect } from 'react';
+import dynamoDB from '../awsConfig';
+import { PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+
+const AddStudent = () => {
+  const [studentID, setStudentID] = useState('');
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const [selectedCourses, setSelectedCourses] = useState([]);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const params = { TableName: 'CoursesTable' };
+      try {
+        const command = new ScanCommand(params);
+        const data = await dynamoDB.send(command);
+        if (data.Items) {
+          setCourses(data.Items);
+        }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const addStudent = async () => {
+    if (!studentID || !name || !age || selectedCourses.length === 0) {
+      alert('Please fill all fields and select at least one course.');
+      return;
+    }
+
+    // Convert selectedCourses to an array of simple strings
+    const enrolledCourses = selectedCourses.map(courseID => courseID);
+
+    const params = {
+      TableName: 'StudentsTable',
+      Item: {
+        studentID,
+        name,
+        age,
+        enrolledCourses, // Store as an array of strings
+      },
+    };
+
+    try {
+      const command = new PutCommand(params);
+      await dynamoDB.send(command);
+      alert('Student added successfully!');
+      setStudentID('');
+      setName('');
+      setAge('');
+      setSelectedCourses([]);
+    } catch (error) {
+      console.error('Error adding student:', error);
+    }
+  };
+
+  return (
+    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 className="text-2xl font-bold mb-4">Add Student</h2>
+      <input
+        type="text"
+        placeholder="Student ID"
+        value={studentID}
+        onChange={(e) => setStudentID(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <input
+        type="text"
+        placeholder="Age"
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
+      />
+      <select
+        multiple
+        value={selectedCourses}
+        onChange={(e) =>
+          setSelectedCourses([...e.target.selectedOptions].map((option) => option.value))
+        }
+        className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg h-40 overflow-auto"
+      >
+        <option value="" disabled>
+          Select Courses
+        </option>
+        {courses.length > 0 ? (
+          courses.map((course, index) => (
+            <option key={index} value={course.courseID}>
+              {course.courseName}
+            </option>
+          ))
+        ) : (
+          <option value="" disabled>
+            No courses available
+          </option>
+        )}
+      </select>
+      <button
+        onClick={addStudent}
+        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+      >
+        Add Student
+      </button>
+    </div>
+  );
+};
+
+export default AddStudent;
+
+
+==== src\components\ParentDetails.jsx ====
+
+import React from 'react';
+
+const ParentDetails = ({ parents }) => {
+  return (
+    <div className="mt-4 bg-white p-4 rounded-lg shadow-md">
+      <h3 className="text-xl font-bold mb-2">Parent Details</h3>
+      {parents.length > 0 ? (
+        <ul>
+          {parents.map((parent, index) => (
+            <li key={index} className="border-b py-2">
+              <span className="font-semibold">{parent.parentName}</span> - {parent.contactNumber}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No parents available for this student.</p>
+      )}
+    </div>
+  );
+};
+
+export default ParentDetails;
+
+
+==== src\components\StudentList.jsx ====
+
+import React, { useEffect, useState } from 'react';
+import dynamoDB from '../awsConfig';
+import { ScanCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import ParentDetails from './ParentDetails';
+import AddCourse from './AddCourse';
+import AddParent from './AddParent';
+
+const StudentList = () => {
+  const [students, setStudents] = useState([]);
+  const [parents, setParents] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [editingStudentID, setEditingStudentID] = useState(null);
+  const [updatedName, setUpdatedName] = useState('');
+  const [updatedAge, setUpdatedAge] = useState('');
+  const [selectedStudentID, setSelectedStudentID] = useState(null);
+  const [showAddCourse, setShowAddCourse] = useState(false);
+  const [showAddParent, setShowAddParent] = useState(false);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const params = { TableName: 'StudentsTable' };
+      try {
+        const command = new ScanCommand(params);
+        const data = await dynamoDB.send(command);
+        setStudents(data.Items);
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+
+    const fetchParents = async () => {
+      const params = { TableName: 'ParentsTable' };
+      try {
+        const command = new ScanCommand(params);
+        const data = await dynamoDB.send(command);
+        setParents(data.Items);
+      } catch (error) {
+        console.error('Error fetching parents:', error);
+      }
+    };
+
+    const fetchCourses = async () => {
+      const params = { TableName: 'CoursesTable' };
+      try {
+        const command = new ScanCommand(params);
+        const data = await dynamoDB.send(command);
+        setCourses(data.Items);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchStudents();
+    fetchParents();
+    fetchCourses();
+  }, []);
+
+  const deleteStudent = async (studentID) => {
+    const params = { TableName: 'StudentsTable', Key: { studentID: studentID } };
     try {
       const command = new DeleteCommand(params);
       await dynamoDB.send(command);
@@ -116,30 +389,18 @@ const StudentList = () => {
   const updateStudent = async () => {
     const params = {
       TableName: 'StudentsTable',
-      Key: {
-        studentID: editingStudentID,
-      },
+      Key: { studentID: editingStudentID },
       UpdateExpression: 'set #name = :name, #age = :age',
-      ExpressionAttributeNames: {
-        '#name': 'name',
-        '#age': 'age',
-      },
-      ExpressionAttributeValues: {
-        ':name': updatedName,
-        ':age': updatedAge,
-      },
+      ExpressionAttributeNames: { '#name': 'name', '#age': 'age' },
+      ExpressionAttributeValues: { ':name': updatedName, ':age': updatedAge },
     };
 
     try {
       const command = new UpdateCommand(params);
       await dynamoDB.send(command);
-      setStudents(
-        students.map((student) =>
-          student.studentID === editingStudentID
-            ? { ...student, name: updatedName, age: updatedAge }
-            : student
-        )
-      );
+      setStudents(students.map((student) => 
+        student.studentID === editingStudentID ? { ...student, name: updatedName, age: updatedAge } : student
+      ));
       setEditingStudentID(null);
       setUpdatedName('');
       setUpdatedAge('');
@@ -149,36 +410,116 @@ const StudentList = () => {
     }
   };
 
+  const getParentDetails = (studentID) => {
+    return parents.filter(parent => parent.studentID === studentID);
+  };
+
+  const getCoursesForStudent = (studentID) => {
+    return courses.filter(course => course.enrolledStudents?.includes(studentID));
+  };
+
   return (
-    <div>
-      <h2>Student List</h2>
-      <ul>
-        {students.map((student, index) => (
-          <li key={index}>
-            {student.studentID} - {student.name} - {student.age}
-            <button onClick={() => deleteStudent(student.studentID)}>Delete</button>
-            <button onClick={() => startEditing(student)}>Update</button>
-          </li>
-        ))}
-      </ul>
+    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+      <h2 className="text-2xl font-bold mb-4">Student List</h2>
+      <div className="mb-4 flex space-x-4">
+        <button
+          onClick={() => setShowAddCourse(!showAddCourse)}
+          className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300"
+        >
+          {showAddCourse ? 'Hide Add Course' : 'Show Add Course'}
+        </button>
+        <button
+          onClick={() => setShowAddParent(!showAddParent)}
+          className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-300"
+        >
+          {showAddParent ? 'Hide Add Parent' : 'Show Add Parent'}
+        </button>
+      </div>
+      
+      {showAddCourse && <AddCourse />}
+      {showAddParent && <AddParent />}
+
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr className="w-full bg-gray-200 text-left">
+            <th className="py-2 px-4">ID</th>
+            <th className="py-2 px-4">Name</th>
+            <th className="py-2 px-4">Age</th>
+            <th className="py-2 px-4">Courses</th>
+            <th className="py-2 px-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students.map((student, index) => (
+            <tr key={index} className="border-b">
+              <td className="py-2 px-4">{student.studentID}</td>
+              <td className="py-2 px-4">{student.name}</td>
+              <td className="py-2 px-4">{student.age}</td>
+              <td className="py-2 px-4">
+                {getCoursesForStudent(student.studentID).map((course, idx) => (
+                  <div key={idx}>{course.courseName}</div>
+                ))}
+              </td>
+              <td className="py-2 px-4 space-x-2">
+                <button
+                  onClick={() => deleteStudent(student.studentID)}
+                  className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-300"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => startEditing(student)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition duration-300"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => setSelectedStudentID(student.studentID)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-300"
+                >
+                  View Parent Details
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {selectedStudentID && (
+        <ParentDetails parents={getParentDetails(selectedStudentID)} />
+      )}
 
       {editingStudentID && (
-        <div>
-          <h3>Update Student</h3>
+        <div className="mt-6">
+          <h3 className="text-xl font-bold mb-2">Update Student</h3>
           <input
             type="text"
             placeholder="Name"
             value={updatedName}
             onChange={(e) => setUpdatedName(e.target.value)}
+            className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
           />
           <input
             type="text"
             placeholder="Age"
             value={updatedAge}
             onChange={(e) => setUpdatedAge(e.target.value)}
+            className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg"
           />
-          <button onClick={updateStudent}>Save</button>
-          <button onClick={() => setEditingStudentID(null)}>Cancel</button>
+          <div className="flex space-x-2">
+            <button
+              onClick={updateStudent}
+              className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition duration-300"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setEditingStudentID(null)}
+              className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -186,130 +527,3 @@ const StudentList = () => {
 };
 
 export default StudentList;
-
-
-==== src\App.css ====
-
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-
-==== src\App.jsx ====
-
-import React from 'react';
-import AddStudent from './components/AddStudent';
-import StudentList from './components/StudentList';
-
-const App = () => {
-  return (
-    <div>
-      <h1>Cloud Computing FA-2: DynamoDB Integration</h1>
-      <AddStudent />
-      <StudentList />
-    </div>
-  );
-};
-
-export default App;
-
-
-==== src\awsConfig.js ====
-
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-
-const client = new DynamoDBClient({
-    region: "eu-north-1",
-    credentials: {
-      accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
-      secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
-    },
-  });
-
-const dynamoDB = DynamoDBDocumentClient.from(client);
-export default dynamoDB;
-
-
-==== src\index.css ====
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-==== src\main.jsx ====
-
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-
-==== postcss.config.js ====
-
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-
-
-==== tailwind.config.js ====
-
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
