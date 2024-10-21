@@ -27,27 +27,35 @@ const AddStudent = () => {
   };
 
   return (
-    <div>
-      <h2>Add Student</h2>
+    <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 className="text-2xl font-bold mb-4">Add Student</h2>
       <input
         type="text"
         placeholder="Student ID"
         value={studentID}
         onChange={(e) => setStudentID(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
       />
       <input
         type="text"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg"
       />
       <input
         type="text"
         placeholder="Age"
         value={age}
         onChange={(e) => setAge(e.target.value)}
+        className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-lg"
       />
-      <button onClick={addStudent}>Add Student</button>
+      <button
+        onClick={addStudent}
+        className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+      >
+        Add Student
+      </button>
     </div>
   );
 };
